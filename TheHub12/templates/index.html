@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+
+<html>
+   <head>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+      <style>
+         a:link, a:visited {
+            background-color: rgb(0, 0, 0);
+            color: rgb(250, 246, 246);
+            border: 1px solid rgb(43, 118, 231);
+            padding: 25px 55px;
+            text-align: center;
+            text-decoration: none;
+            display: flex;            
+        }
+         a:hover, a:active {
+            background-color: rgb(48, 142, 230);
+            color: white;
+        }
+        .flex-container {
+            display: flex;
+            flex-wrap: nowrap;
+            background-color: rgb(95, 95, 90);          
+        }
+        .flex-container > div {
+            background-color: #0c0c0c;
+            width: 1000px;
+            margin: 5px;
+            text-align: center;
+            color: rgb(118, 184, 241);
+            line-height: 15px;
+            font-size: 30px;
+        }
+        .Readings {
+            font-size:100%;
+            color: aliceblue;
+            text-align: center;
+            display: inline-flex;            
+        }
+        .Time {
+            font-size:200%;
+            color: aliceblue;
+        }
+        .Lights {
+            font: size 150%;
+            color: aliceblue;           
+        }        
+
+    </style>
+   </head>
+
+   <body style="background-color:black;">
+    <div class="flex-container">        
+        <div>
+            <div>
+                <h1>Traveling to :</h1>                                                   
+                    
+                        {% if travel_destination %}
+                        <h2>{{travel_destination}}</h2> 
+                        <script>
+                            localStorage.setItem("travel_destination")
+                        </script>
+                        {% else %}
+                        <script>
+                            localStorage.getItem("travel_destination")
+                        </script>
+                        <h2>(City not yet entered)</h2>
+                        {% endif %} 
+                        {% if travel_date %}                                  
+                        <h2>&nbsp;&nbsp;&nbsp;{{travel_date}}</h2>
+                        {% else %}
+                        <h2>(Date not yet entered)</h2>
+                        {% endif %}
+                        <h2>Days left to the travel: {{delta}}</h2>                                                                           
+                    
+            </div>                
+            <div class="Time">               
+                <div>                   
+                    <form action ='/travel' method="POST">                            
+                        <label style="font-size: 2.5rem" for="travel_destination"></label>
+                        <input style="font-size: 2.5rem" type="text" name="travel_destination" id="travel_destination" value="Name Of Place">
+                        <br>                       
+                        <label style="font-size: 2.5rem" for="travel_date"></label>                            
+                        <input style="font-size: 2.5rem" type="date" name="travel_date" id="travel_date" value="Travel date">
+                        <br>                            
+                        <input style="font-size: 2.5rem" type="submit" value="Add New Destination">
+                        <br>
+                    </form>                                         
+                </div>                                                                          
+            </div>
+        </div>
+                
+        <script>
+            setInterval(function(){$.ajax({
+                url: '/update',
+                type: 'POST',
+                success: function(response) {
+                    console.log(response);                    
+                    $("#time").html(response["time"] );
+                    $("#celcius").html(response ["celcius"] );
+                    $("#humidity").html(response ["humidity"] );
+                    $("#pressure").html(response ["pressure"] );
+                    $("#dateToday").html(response ["dateToday"] );
+                    
+                },
+                error: function(error) {
+                    console.log(error);
+                }
+            })}, 1000);
+        </script>        
+        <div>
+            <div class="Time">
+                <h1 id="time">00:00</h1>                
+                <h4 id="dateToday"></h4>
+                </div>
+            <h2>Set New Alarm</h2>
+            <br>
+                <div>                   
+                        <form action ='/alarm' method="POST">                            
+                            <label style="font-size: 2.5rem" for="alarm_date"></label>
+                            <input style="font-size: 2.5rem" type="date" name="alarm_date" id="alarm_date">
+                            <br>                            
+                            <label style="font-size: 2.5rem" for="alarm_time"></label>                            
+                            <input style="font-size: 2.5rem" type="time" name="alarm_time" id="alarm_time">
+                            <br>                            
+                            <input style="font-size: 2.5rem" type="submit" value="Add New Alarm">
+                            <br>
+                        </form>                                         
+                </div>
+                <div>
+                    <h2>Alarm is set to :</h2>                                                   
+                        <div class="Readings">
+                            {% if alarm_time %}
+                            <h2>{{alarm_time}}</h2>
+                            {% else %} 
+                            <h6> (Time not set yet)</h6>
+                            {% endif %}  
+                            {% if alarm_date %}                                                            
+                            <h6>&nbsp;&nbsp;&nbsp;{{alarm_date}}</h6>  
+                            {% else %} 
+                            <h6> (Date not set yet)</h6>
+                            {% endif%}
+                        </div>
+                </div>
+        </div>
+    </div>
+    <div class="flex-container">
+        <div>
+            <h2>Temperature</h2>                       
+            <div class="Readings">                
+                <h1 id="celcius">0.0</h1>
+                <h2>°C</h2>              
+            </div>
+            
+        </div>
+        <div>
+            <h2>Humidity</h2>
+            <div class="Readings">
+                <h1 id="humidity">00</h1>
+                <h2>%</h2>
+            </div>
+        </div>
+        <div>
+            <h2>Pressure</h2>
+            <div class="Readings">
+                <h1 id="pressure">000</h1>
+                <h2>mb</h2>
+            </div>
+        </div>
+        <div>
+            <div>
+                <h2>Light Control</h2>
+                <br>
+                <br>                
+                <div class="Lights">               
+                 <a href="/light/on">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                     &nbsp;&nbsp;ON</a> 
+                     <br> 
+                 <a href="/light/off">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                     &nbsp;OFF</a>
+                </div>
+            </div>
+        </div>
+    </div>        
+   </body>
+</html>
